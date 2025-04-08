@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unified Trader Visualization Dashboard</title>
+    
+    <!-- External CSS Libraries -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/datatables.net-bs5@1.13.4/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/datatables.net-buttons-bs5@2.3.6/css/buttons.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/datatables.net-responsive-bs5@2.4.1/css/responsive.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="unified-styles.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header Section -->
+        <header class="dashboard-header">
+            <div class="header-title">
+                <h1>Unified Trader Visualization Dashboard</h1>
+            </div>
+            <div class="file-upload-container">
+                <label for="csv-file-input" class="btn btn-primary">
+                    <i class="fas fa-upload"></i> Upload CSV
+                </label>
+                <input type="file" id="csv-file-input" accept=".csv" style="display: none;">
+                <span id="file-name-display">No file selected</span>
+            </div>
+            <div id="export-container" class="export-container">
+                <!-- Export buttons will be added here by ExportManager -->
+            </div>
+        </header>
+        
+        <!-- Main Dashboard Content -->
+        <div class="dashboard-content">
+            <!-- Filter Panel (Left Sidebar) -->
+            <aside id="filter-panel" class="filter-panel">
+                <!-- Filters will be added here by FilterManager -->
+            </aside>
+            
+            <!-- Visualization Area (Main Content) -->
+            <main class="visualization-area">
+                <!-- Summary Metrics -->
+                <section id="summary-metrics" class="summary-section">
+                    <!-- Summary metrics will be added here by ChartVisualizer -->
+                </section>
+                
+                <!-- Visualization Tabs -->
+                <div class="visualization-tabs">
+                    <ul class="nav nav-tabs" id="visualization-tabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="conversion-tab" data-bs-toggle="tab" data-bs-target="#conversion-panel" type="button" role="tab" aria-controls="conversion-panel" aria-selected="true">Conversion Analysis</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="time-to-convert-tab" data-bs-toggle="tab" data-bs-target="#time-to-convert-panel" type="button" role="tab" aria-controls="time-to-convert-panel" aria-selected="false">Time to Convert</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="device-path-tab" data-bs-toggle="tab" data-bs-target="#device-path-panel" type="button" role="tab" aria-controls="device-path-panel" aria-selected="false">Device Path</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="media-tab" data-bs-toggle="tab" data-bs-target="#media-panel" type="button" role="tab" aria-controls="media-panel" aria-selected="false">Media Performance</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="channel-tab" data-bs-toggle="tab" data-bs-target="#channel-panel" type="button" role="tab" aria-controls="channel-panel" aria-selected="false">Channel Analysis</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="creative-tab" data-bs-toggle="tab" data-bs-target="#creative-panel" type="button" role="tab" aria-controls="creative-panel" aria-selected="false">Creative Performance</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="geo-tab" data-bs-toggle="tab" data-bs-target="#geo-panel" type="button" role="tab" aria-controls="geo-panel" aria-selected="false">Geographic Insights</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="frequency-tab" data-bs-toggle="tab" data-bs-target="#frequency-panel" type="button" role="tab" aria-controls="frequency-panel" aria-selected="false">Frequency Analysis</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="site-tab" data-bs-toggle="tab" data-bs-target="#site-panel" type="button" role="tab" aria-controls="site-panel" aria-selected="false">Site Performance</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="table-tab" data-bs-toggle="tab" data-bs-target="#table-panel" type="button" role="tab" aria-controls="table-panel" aria-selected="false">Data Table</button>
+                        </li>
+                    </ul>
+                    
+                    <div class="tab-content" id="visualization-tab-content">
+                        <!-- Conversion Analysis Panel -->
+                        <div class="tab-pane fade show active" id="conversion-panel" role="tabpanel" aria-labelledby="conversion-tab">
+                            <div class="chart-row">
+                                <div class="chart-container">
+                                    <div class="chart-header" data-chart-id="conversion-type">
+                                        <h3>Conversions by Type</h3>
+                                    </div>
+                                    <div class="chart-body">
+                                        <canvas id="conversion-type-chart"></canvas>
+                                    </div>
+                                </div>
+                                <div class="chart-container">
+                                    <div class="chart-header" data-chart-id="device-type">
+                                        <h3>Conversions by Device</h3>
+                                    </div>
+                                    <div class="chart-body">
+                                        <canvas id="device-type-chart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="chart-row">
+                                <div class="chart-container full-width">
+                                    <div class="chart-header" data-chart-id="conversion-timeline">
+                                        <h3>Conversion Timeline</h3>
+                                    </div>
+                                    <div class="chart-body">
+                                        <canvas id="conversion-timeline-chart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Time to Convert Panel -->
+                        <div class="tab-pane fade" id="time-to-convert-panel" role="tabpanel" aria-labelledby="time-to-convert-tab">
+                            <section id="time-metrics-summary" class="summary-section">
+                                <!-- Time to convert summary metrics will be added here -->
+                            </section>
+                            <div class="chart-row">
+                                <div class="chart-container full-width">
+                                    <div class="chart-header" data-chart-id="time-distribution">
+                                        <h3>Time to Convert Distribution</h3>
+                                    </div>
+                                    <div class="chart-body">
+                                        <canvas id="time-distribution-chart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="chart-row">
+                                <div class="chart-container">
+                                    <div class="chart-header" data-chart-id="time-by-device">
+                                        <h3>Time to Convert by Device</h3>
+                                    </div>
+                                    <div class="chart-body">
+                                        <canvas id="time-by-device-chart"></canvas>
+                                    </div>
+                                </div>
+                                <div class="chart-container">
+                                    <div class="chart-header" data-chart-id="time-by-format">
+                                        <h3>Time to Convert by Ad Format</h3>
+                                    </div>
+                                    <div class="chart-body">
+                                        <canvas id="time-by-format-chart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="chart-row">
+                                <div class="chart-container">
+                                    <div class="chart-header" data-chart-id="time-by-channel">
+                                        <h3>Time to Convert by Channel</h3>
+                                    </div>
+                                    <div class="chart-body">
+                                        <canvas id="time-by-channel-chart"></canvas>
+                                    </div>
+                                </div>
+                                <div class="chart-container">
+                                    <div class="chart-header" data-chart-id="time-vs-conversion">
+                                        <h3>% of Conversions vs. Time to Convert</h3>
+                                    </div>
+                                    <div class="chart-body">
+                                        <canvas id="time-vs-conversion-chart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Device Path Panel -->
+                        <div class="tab-pane fade" id="device-path-panel" role="tabpanel" aria-labelledby="device-path-tab">
+                            <div class="chart-row">
+                                <div class="chart-container full-width">
+                                    <div class="chart-header" data-chart-id="device-path">
+                                        <h3>Conversions by Device Path</h3>
+                                    </div>
+                                    <div class="chart-body">
+                                        <canvas id="device-path-chart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="chart-row">
+                                <div class="chart-container full-width">
+                                    <div class="chart-header" data-chart-id="device-sankey">
+                                        <h3>Device Path Flow</h3>
+                                    </div>
+                                    <div class="chart-body">
+                                        <div id="device-sankey-container" style="height: 400px;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="chart-row">
+                                <div class="chart-container full-width">
+                                    <div class="chart-header" data-chart-id="device-path-time">
+                                        <h3>Time to Convert by Device Path</h3>
+                                    </div>
+                                    <div class="chart-body">
+                                        <canvas id="device-path-time-chart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Media Performance Panel -->
+                        <div class="tab-pane fade" id="media-panel" role="tabpanel" aria-labelledby="media-tab">
+                            <div class="chart-row">
+                                <div class="chart-container full-width">
+                                    <div class="chart-header" data-chart-id="campaign-performance">
+                                        <h3>Campaign Performance</h3>
+                                    </div>
+                                    <div class="chart-body">
+                                        <canvas id="campaign-performance-chart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="chart-row">
+                                <div class="chart-container full-width">
+                                    <div class="chart-header" data-chart-id="adgroup-performance">
+                                        <h3>Top Ad Groups</h3>
+                                    </div>
+                                    <div class="chart-body">
+                                        <canvas id="adgroup-performance-chart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Channel Analysis Panel -->
+                        <div class="tab-pane fade" id="channel-panel" role="tabpanel" aria-labelledby="channel-tab">
+                            <div class="chart-row">
+                                <div class="chart-container">
+                                    <div class="chart-header" data-chart-id="device-performance">
+                                        <h3>Device Performance</h3>
+                                    </div>
+                                    <div class="chart-body">
+                                        <canvas id="device-performance-chart"></canvas>
+                                    </div>
+                                </div>
+                                <div class="chart-container">
+                                    <div class="chart-header" data-chart-id="environment-performance">
+                                        <h3>Ad Environment Performance</h3>
+                                    </div>
+                                    <div class="chart-body">
+                                        <canvas id="environment-performance-chart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Creative Performance Panel -->
+                        <div class="tab-pane fade" id="creative-panel" role="tabpanel" aria-labelledby="creative-tab">
+                            <div class="chart-row">
+                                <div class="chart-container full-width">
+                                    <div class="chart-header" data-chart-id="creative-performance">
+                                        <h3>Top Creatives</h3>
+                                    </div>
+                                    <div class="chart-body">
+                                        <canvas id="creative-performance-chart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="chart-row">
+                                <div class="chart-container full-width">
+                                    <div class="chart-header" data-chart-id="format-performance">
+                                        <h3>Format Performance</h3>
+                                    </div>
+                                    <div class="chart-body">
+                                        <canvas id="format-performance-chart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Geographic Insights Panel -->
+                        <div class="tab-pane fade" id="geo-panel" role="tabpanel" aria-labelledby="geo-tab">
+                            <div class="chart-row">
+                                <div class="chart-container full-width">
+                                    <div class="chart-header" data-chart-id="geo-map">
+                                        <h3>Geographic Distribution</h3>
+                                    </div>
+                                    <div class="chart-body map-container">
+                                        <div id="geo-map" style="height: 400px;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="chart-row">
+                                <div class="chart-container full-width">
+                                    <div class="chart-header" data-chart-id="region-performance">
+                                        <h3>Top Regions</h3>
+                                    </div>
+                                    <div class="chart-body">
+                                        <canvas id="region-performance-chart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Frequency Analysis Panel -->
+                        <div class="tab-pane fade" id="frequency-panel" role="tabpanel" aria-labelledby="frequency-tab">
+                            <div class="chart-row">
+                                <div class="chart-container">
+                                    <div class="chart-header" data-chart-id="impression-distribution">
+                                        <h3>Impression Distribution</h3>
+                                    </div>
+                                    <div class="chart-body">
+                                        <canvas id="impression-distribution-chart"></canvas>
+                                    </div>
+                                </div>
+                                <div class="chart-container">
+                                    <div class="chart-header" data-chart-id="frequency-conversion">
+                                        <h3>Frequency vs. Conversion Value</h3>
+                                    </div>
+                                    <div class="chart-body">
+                                        <canvas id="frequency-conversion-chart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Site Performance Panel -->
+                        <div class="tab-pane fade" id="site-panel" role="tabpanel" aria-labelledby="site-tab">
+                            <div class="chart-row">
+                                <div class="chart-container full-width">
+                                    <div class="chart-header" data-chart-id="site-performance">
+                                        <h3>Site Performance</h3>
+                                    </div>
+                                    <div class="chart-body">
+                                        <canvas id="site-performance-chart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Data Table Panel -->
+                        <div class="tab-pane fade" id="table-panel" role="tabpanel" aria-labelledby="table-tab">
+                            <div class="table-container">
+                                <div id="data-table-container">
+                                    <!-- Data table will be added here by ChartVisualizer -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+        
+        <!-- Footer Section -->
+        <footer class="dashboard-footer">
+            <p>Unified Trader Visualization Dashboard | Data is processed client-side only - no server storage</p>
+        </footer>
+    </div>
+    
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="spinner-container">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p>Processing data...</p>
+        </div>
+    </div>
+    
+    <!-- External JavaScript Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.4/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.3.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/datatables.net@1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/datatables.net-bs5@1.13.4/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/datatables.net-buttons@2.3.6/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/datatables.net-buttons-bs5@2.3.6/js/buttons.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/datatables.net-buttons@2.3.6/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/datatables.net-buttons@2.3.6/js/buttons.print.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/datatables.net-responsive@2.4.1/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/datatables.net-responsive-bs5@2.4.1/js/responsive.bootstrap5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://unpkg.com/d3-sankey@0.12.3/dist/d3-sankey.min.js"></script>
+    
+    <!-- Custom JavaScript -->
+    <script src="data-processor.js"></script>
+    <script src="enhanced-data-processor.js"></script>
+    <script src="unified-data-processor.js"></script>
+    <script src="chart-visualizer.js"></script>
+    <script src="time-to-convert-visualizer.js"></script>
+    <script src="device-path-visualizer.js"></script>
+    <script src="filter-sort-manager.js"></script>
+    <script src="unified-filter-manager.js"></script>
+    <script src="export-manager.js"></script>
+    <script src="unified-main.js"></script>
+</body>
+</html>
