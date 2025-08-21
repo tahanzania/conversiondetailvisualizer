@@ -251,7 +251,7 @@ class DataProcessor {
     
     this.rawData.forEach(row => {
       const convDate = row['Conversion Time'] ? new Date(row['Conversion Time']) : null;
-      if (convDate) {
+      if (convDate && !isNaN(convDate.getTime())) {
         if (!minDate || convDate < minDate) minDate = convDate;
         if (!maxDate || convDate > maxDate) maxDate = convDate;
       }
@@ -297,8 +297,11 @@ class DataProcessor {
     const conversionTimeline = {};
     this.rawData.forEach(row => {
       if (row['Conversion Time']) {
-        const date = new Date(row['Conversion Time']).toISOString().split('T')[0];
-        conversionTimeline[date] = (conversionTimeline[date] || 0) + 1;
+        const convDate = new Date(row['Conversion Time']);
+        if (!isNaN(convDate.getTime())) {
+          const date = convDate.toISOString().split('T')[0];
+          conversionTimeline[date] = (conversionTimeline[date] || 0) + 1;
+        }
       }
     });
     
