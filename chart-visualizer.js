@@ -193,7 +193,6 @@ class ChartVisualizer {
             }
           },
           x: {
-            type: 'category',
             title: {
               display: true,
               text: 'Conversion Type'
@@ -212,14 +211,16 @@ class ChartVisualizer {
     const ctx = document.getElementById('conversion-timeline-chart');
     if (!ctx) return;
     
-    const points = Object.entries(conversionTimeline).map(([date, value]) => ({ x: date, y: value }));
+    const labels = Object.keys(conversionTimeline);
+    const data = Object.values(conversionTimeline);
     
     this.charts.conversionTimeline = new Chart(ctx, {
       type: 'line',
       data: {
+        labels: labels,
         datasets: [{
           label: 'Conversions',
-          data: points,
+          data: data,
           backgroundColor: 'rgba(78, 121, 167, 0.2)',
           borderColor: 'rgba(78, 121, 167, 1)',
           borderWidth: 2,
@@ -241,7 +242,7 @@ class ChartVisualizer {
           tooltip: {
             callbacks: {
               title: function(context) {
-                return new Date(context[0].parsed.x).toLocaleDateString();
+                return new Date(context[0].label).toLocaleDateString();
               }
             }
           }
@@ -255,8 +256,6 @@ class ChartVisualizer {
             }
           },
           x: {
-            type: 'time',
-            time: { unit: 'day' },
             title: {
               display: true,
               text: 'Date'
@@ -389,7 +388,6 @@ class ChartVisualizer {
             }
           },
           x: {
-            type: 'category',
             title: {
               display: true,
               text: 'Campaign'
@@ -476,21 +474,20 @@ class ChartVisualizer {
               drawOnChartArea: false
             }
           },
-            x: {
-              type: 'category',
-              title: {
-                display: true,
-                text: 'Ad Group'
-              },
-              ticks: {
-                maxRotation: 45,
-                minRotation: 45
-              }
+          x: {
+            title: {
+              display: true,
+              text: 'Ad Group'
+            },
+            ticks: {
+              maxRotation: 45,
+              minRotation: 45
             }
           }
         }
-      });
-    }
+      }
+    });
+  }
 
   /**
    * Create channel analysis chart
@@ -562,7 +559,6 @@ class ChartVisualizer {
               }
             },
             x: {
-              type: 'category',
               title: {
                 display: true,
                 text: 'Device Type'
@@ -637,7 +633,6 @@ class ChartVisualizer {
               }
             },
             x: {
-              type: 'category',
               title: {
                 display: true,
                 text: 'Ad Environment'
@@ -722,21 +717,20 @@ class ChartVisualizer {
               drawOnChartArea: false
             }
           },
-            x: {
-              type: 'category',
-              title: {
-                display: true,
-                text: 'Creative'
-              },
-              ticks: {
-                maxRotation: 45,
-                minRotation: 45
-              }
+          x: {
+            title: {
+              display: true,
+              text: 'Creative'
+            },
+            ticks: {
+              maxRotation: 45,
+              minRotation: 45
             }
           }
         }
-      });
-    }
+      }
+    });
+  }
 
   /**
    * Create format performance chart
@@ -806,17 +800,16 @@ class ChartVisualizer {
               drawOnChartArea: false
             }
           },
-            x: {
-              type: 'category',
-              title: {
-                display: true,
-                text: 'Ad Format'
-              }
+          x: {
+            title: {
+              display: true,
+              text: 'Ad Format'
             }
           }
         }
-      });
-    }
+      }
+    });
+  }
 
   /**
    * Create geographic insights map
@@ -987,13 +980,12 @@ class ChartVisualizer {
                 text: 'Number of Conversions'
               }
             },
-              x: {
-                type: 'category',
-                title: {
-                  display: true,
-                  text: 'Impression Count Range'
-                }
+            x: {
+              title: {
+                display: true,
+                text: 'Impression Count Range'
               }
+            }
           }
         }
       });
@@ -1062,13 +1054,12 @@ class ChartVisualizer {
                 drawOnChartArea: false
               }
             },
-              x: {
-                type: 'category',
-                title: {
-                  display: true,
-                  text: 'Impression Count Range'
-                }
+            x: {
+              title: {
+                display: true,
+                text: 'Impression Count Range'
               }
+            }
           }
         }
       });
