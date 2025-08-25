@@ -103,15 +103,16 @@ class TimeToConvertVisualizer {
               text: 'Number of Conversions'
             }
           },
-          x: {
-            title: {
-              display: true,
-              text: 'Days to Convert'
+            x: {
+              type: 'category',
+              title: {
+                display: true,
+                text: 'Days to Convert'
+              }
             }
           }
         }
-      }
-    });
+      });
     
     // Create summary metrics for time to convert
     this.createTimeToConvertSummary(stats);
@@ -249,15 +250,16 @@ class TimeToConvertVisualizer {
               drawOnChartArea: false
             }
           },
-          x: {
-            title: {
-              display: true,
-              text: 'Device Type'
+            x: {
+              type: 'category',
+              title: {
+                display: true,
+                text: 'Device Type'
+              }
             }
           }
         }
-      }
-    });
+      });
   }
 
   /**
@@ -328,19 +330,20 @@ class TimeToConvertVisualizer {
               drawOnChartArea: false
             }
           },
-          x: {
-            title: {
-              display: true,
-              text: 'Ad Format'
-            },
-            ticks: {
-              maxRotation: 45,
-              minRotation: 45
+            x: {
+              type: 'category',
+              title: {
+                display: true,
+                text: 'Ad Format'
+              },
+              ticks: {
+                maxRotation: 45,
+                minRotation: 45
+              }
             }
           }
         }
-      }
-    });
+      });
   }
 
   /**
@@ -411,16 +414,17 @@ class TimeToConvertVisualizer {
               drawOnChartArea: false
             }
           },
-          x: {
-            title: {
-              display: true,
-              text: 'Channel (Ad Environment)'
+            x: {
+              type: 'category',
+              title: {
+                display: true,
+                text: 'Channel (Ad Environment)'
+              }
             }
           }
         }
-      }
-    });
-  }
+      });
+    }
 
   /**
    * Create time vs conversion percentage chart

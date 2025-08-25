@@ -1,12 +1,22 @@
 /* Combined CSS styles for unified dashboard */
 
-/* Base styles from original dashboard */
+:root {
+    --font-family: 'Inter', 'Roboto', 'Helvetica Neue', sans-serif;
+    --bg-color: #f5f7fa;
+    --surface-color: #ffffff;
+    --text-color: #1f2937;
+    --muted-text-color: #6b7280;
+    --accent-color: #4e79a7;
+}
+
+/* Base styles */
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: var(--font-family);
     margin: 0;
     padding: 0;
-    background-color: #f8f9fa;
-    color: #333;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    line-height: 1.5;
 }
 
 .dashboard-container {
@@ -17,7 +27,7 @@ body {
 
 /* Header styles */
 .dashboard-header {
-    background-color: #fff;
+    background-color: var(--surface-color);
     padding: 15px 20px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     display: flex;
@@ -29,7 +39,7 @@ body {
 .header-title h1 {
     margin: 0;
     font-size: 1.8rem;
-    color: #2c3e50;
+    color: var(--accent-color);
 }
 
 .file-upload-container {
@@ -40,7 +50,7 @@ body {
 
 #file-name-display {
     font-size: 0.9rem;
-    color: #6c757d;
+    color: var(--muted-text-color);
 }
 
 .export-container {
@@ -58,7 +68,7 @@ body {
 /* Filter panel */
 .filter-panel {
     width: 250px;
-    background-color: #fff;
+    background-color: var(--surface-color);
     padding: 20px;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
     overflow-y: auto;
@@ -100,7 +110,7 @@ body {
 }
 
 .summary-section {
-    background-color: #fff;
+    background-color: var(--surface-color);
     border-radius: 8px;
     padding: 15px;
     margin-bottom: 20px;
@@ -116,15 +126,15 @@ body {
     display: flex;
     align-items: center;
     padding: 10px;
-    background-color: #f8f9fa;
+    background: linear-gradient(135deg, var(--surface-color) 0%, var(--bg-color) 100%);
     border-radius: 6px;
-    border-left: 4px solid #4e79a7;
+    border-left: 4px solid var(--accent-color);
 }
 
 .metric-icon {
     font-size: 1.5rem;
     margin-right: 10px;
-    color: #4e79a7;
+    color: var(--accent-color);
 }
 
 .metric-content {
@@ -139,7 +149,7 @@ body {
 
 .metric-title {
     font-size: 0.8rem;
-    color: #6c757d;
+    color: var(--muted-text-color);
 }
 
 /* Chart containers */
@@ -153,9 +163,9 @@ body {
 .chart-container {
     flex: 1;
     min-width: 300px;
-    background-color: #fff;
+    background-color: var(--surface-color);
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     overflow: hidden;
 }
 
@@ -165,7 +175,7 @@ body {
 
 .chart-header {
     padding: 15px;
-    border-bottom: 1px solid #e9ecef;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -174,7 +184,7 @@ body {
 .chart-header h3 {
     margin: 0;
     font-size: 1.1rem;
-    color: #2c3e50;
+    color: var(--text-color);
 }
 
 .chart-body {
@@ -183,13 +193,17 @@ body {
     position: relative;
 }
 
+.chart-body canvas {
+    border-radius: 6px;
+}
+
 .map-container {
     height: 400px;
 }
 
 /* Table container */
 .table-container {
-    background-color: #fff;
+    background-color: var(--surface-color);
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     padding: 15px;
@@ -198,8 +212,8 @@ body {
 
 /* Footer */
 .dashboard-footer {
-    background-color: #2c3e50;
-    color: #fff;
+    background-color: var(--accent-color);
+    color: var(--surface-color);
     padding: 15px 20px;
     text-align: center;
     font-size: 0.9rem;
@@ -225,7 +239,7 @@ body {
 
 .spinner-container p {
     margin-top: 10px;
-    color: #2c3e50;
+    color: var(--text-color);
 }
 
 /* Welcome message */
@@ -236,7 +250,7 @@ body {
 }
 
 .welcome-message h2 {
-    color: #2c3e50;
+    color: var(--text-color);
     margin-bottom: 20px;
 }
 
