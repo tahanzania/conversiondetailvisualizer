@@ -100,19 +100,20 @@ class DevicePathVisualizer {
               text: 'Number of Conversions'
             }
           },
-          x: {
-            title: {
-              display: true,
-              text: 'Device Path'
-            },
-            ticks: {
-              maxRotation: 45,
-              minRotation: 45
+            x: {
+              type: 'category',
+              title: {
+                display: true,
+                text: 'Device Path'
+              },
+              ticks: {
+                maxRotation: 45,
+                minRotation: 45
+              }
             }
           }
         }
-      }
-    });
+      });
   }
 
   /**
@@ -312,20 +313,21 @@ class DevicePathVisualizer {
               drawOnChartArea: false
             }
           },
-          x: {
-            title: {
-              display: true,
-              text: 'Device Path'
-            },
-            ticks: {
-              maxRotation: 45,
-              minRotation: 45
+            x: {
+              type: 'category',
+              title: {
+                display: true,
+                text: 'Device Path'
+              },
+              ticks: {
+                maxRotation: 45,
+                minRotation: 45
+              }
             }
           }
         }
-      }
-    });
-  }
+      });
+    }
 
   /**
    * Create device path heatmap
