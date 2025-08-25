@@ -154,17 +154,44 @@ class DevicePathVisualizer {
       nodeMap[node.name] = i;
     });
     
+    // Remove circular links which D3 Sankey cannot process
+    const adjacency = {};
+    const filteredFlows = [];
+
+    const createsCycle = (src, tgt, visited = new Set()) => {
+      if (src === tgt) return true;
+      if (!adjacency[src]) return false;
+      if (visited.has(src)) return false;
+      visited.add(src);
+      return adjacency[src].some(next => createsCycle(next, tgt, visited));
+    };
+
+    flows.forEach(flow => {
+      const { source, target, value } = flow;
+      if (!createsCycle(target, source)) {
+        filteredFlows.push({ source, target, value });
+        (adjacency[source] = adjacency[source] || []).push(target);
+      }
+    });
+
     const sankeyData = {
       nodes: nodes,
-      links: flows.map(flow => ({
+      links: filteredFlows.map(flow => ({
         source: nodeMap[flow.source],
         target: nodeMap[flow.target],
         value: flow.value
       }))
     };
-    
+
     // Generate Sankey layout
-    const { nodes: sankeyNodes, links: sankeyLinks } = sankey(sankeyData);
+    let sankeyNodes, sankeyLinks;
+    try {
+      ({ nodes: sankeyNodes, links: sankeyLinks } = sankey(sankeyData));
+    } catch (err) {
+      console.error('Sankey generation error:', err);
+      container.innerHTML = '<div class="chart-placeholder">Unable to render Sankey diagram</div>';
+      return;
+    }
     
     // Draw links
     svg.append('g')
@@ -327,6 +354,22 @@ class DevicePathVisualizer {
    * @returns {string} - Adjusted color
    */
   adjustColor(color, amount) {
-    return color;
+    let useHash = false;
+    if (color.startsWith('#')) {
+      color = color.slice(1);
+      useHash = true;
+    }
+
+    const num = parseInt(color, 16);
+    let r = (num >> 16) + amount;
+    let g = ((num >> 8) & 0x00ff) + amount;
+    let b = (num & 0x0000ff) + amount;
+
+    r = Math.max(Math.min(255, r), 0);
+    g = Math.max(Math.min(255, g), 0);
+    b = Math.max(Math.min(255, b), 0);
+
+    const newColor = (b | (g << 8) | (r << 16)).toString(16).padStart(6, '0');
+    return (useHash ? '#' : '') + newColor;
   }
 }
