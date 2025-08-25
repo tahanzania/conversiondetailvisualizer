@@ -8,10 +8,34 @@ class ChartVisualizer {
     this.dataProcessor = dataProcessor;
     this.charts = {};
     this.colorPalette = [
-      '#4e79a7', '#f28e2c', '#e15759', '#76b7b2', 
-      '#59a14f', '#edc949', '#af7aa1', '#ff9da7', 
+      '#4e79a7', '#f28e2c', '#e15759', '#76b7b2',
+      '#59a14f', '#edc949', '#af7aa1', '#ff9da7',
       '#9c755f', '#bab0ab'
     ];
+
+    // Apply modern, minimalist defaults to all charts
+    if (typeof Chart !== 'undefined') {
+      Chart.defaults.font.family = 'Inter, Roboto, "Helvetica Neue", sans-serif';
+      Chart.defaults.color = '#1f2937';
+      Chart.defaults.borderColor = 'rgba(0,0,0,0.1)';
+      Chart.defaults.elements.bar.borderRadius = 6;
+      Chart.defaults.elements.bar.borderSkipped = false;
+      Chart.defaults.elements.line.tension = 0.3;
+      Chart.defaults.plugins.legend.labels.boxWidth = 12;
+      Chart.defaults.plugins.legend.labels.usePointStyle = true;
+      Chart.defaults.scales.linear = {
+        grid: { color: 'rgba(0,0,0,0.05)', drawBorder: false },
+        ticks: { color: '#6b7280', font: { size: 12 } }
+      };
+      Chart.defaults.scales.category = {
+        grid: { display: false, drawBorder: false },
+        ticks: { color: '#6b7280', font: { size: 12 } }
+      };
+      Chart.defaults.scales.time = {
+        grid: { color: 'rgba(0,0,0,0.05)', drawBorder: false },
+        ticks: { color: '#6b7280', font: { size: 12 } }
+      };
+    }
   }
 
   /**
