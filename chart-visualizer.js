@@ -29,7 +29,13 @@ class ChartVisualizer {
       };
       Chart.defaults.scales.category = {
         grid: { display: false, drawBorder: false },
-        ticks: { color: '#6b7280', font: { size: 12 } }
+        ticks: {
+          color: '#6b7280',
+          font: { size: 12 },
+          callback: function(value) {
+            return this.getLabelForValue(value);
+          }
+        }
       };
       Chart.defaults.scales.time = {
         grid: { color: 'rgba(0,0,0,0.05)', drawBorder: false },
