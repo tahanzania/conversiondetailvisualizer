@@ -58,6 +58,22 @@ body {
     gap: 10px;
 }
 
+.info-link-container {
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.info-link-container .btn {
+    white-space: nowrap;
+}
+
+@media (min-width: 768px) {
+    .info-link-container {
+        margin-top: 0;
+    }
+}
+
 /* Main content layout */
 .dashboard-content {
     display: flex;
