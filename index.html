@@ -38,6 +38,11 @@
             <div id="export-container" class="export-container">
                 <!-- Export buttons will be added here by ExportManager -->
             </div>
+            <div class="info-link-container">
+                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#aboutModal">
+                    <i class="fas fa-circle-info"></i> Learn how it works
+                </button>
+            </div>
         </header>
         
         <!-- Main Dashboard Content -->
@@ -354,10 +359,38 @@
         
         <!-- Footer Section -->
         <footer class="dashboard-footer">
-            <p>Unified Trader Visualization Dashboard | Data is processed client-side only - no server storage. <a href="about.html">Learn how it works</a></p>
+            <p>Unified Trader Visualization Dashboard | Data is processed client-side only - no server storage. <button type="button" class="btn btn-link p-0 align-baseline" data-bs-toggle="modal" data-bs-target="#aboutModal">Learn how it works</button></p>
         </footer>
     </div>
-    
+
+    <!-- About Modal -->
+    <div class="modal fade" id="aboutModal" tabindex="-1" aria-labelledby="aboutModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title h4" id="aboutModalLabel">How the Dashboard Works</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>The dashboard runs entirely in your browser. When you upload a CSV file, it is processed on your device to generate charts and tables. No data is sent to a server.</p>
+
+                    <h3 class="h5 mt-4">Your Data Stays Private</h3>
+                    <p>We do not collect, store, or transmit your data. Everything happens locally, and closing the page removes all uploaded information.</p>
+
+                    <h3 class="h5 mt-4">Why it's Safe to Use</h3>
+                    <ul>
+                        <li>Open-source code that you can inspect.</li>
+                        <li>Runs offline once loaded; no hidden network requests.</li>
+                        <li>Data is kept in memory only for visualization and never saved.</li>
+                    </ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Loading Overlay -->
     <div id="loading-overlay" class="loading-overlay">
         <div class="spinner-container">
