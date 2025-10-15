@@ -59,19 +59,22 @@ function setupEventListeners() {
     const fileInput = document.getElementById('csv-file-input');
     if (fileInput) {
         fileInput.addEventListener('change', handleFileUpload);
-    }
-    
-    // File name display update
-    fileInput.addEventListener('change', function() {
-        const fileNameDisplay = document.getElementById('file-name-display');
-        if (fileNameDisplay) {
-            if (fileInput.files.length > 0) {
-                fileNameDisplay.textContent = fileInput.files[0].name;
-            } else {
-                fileNameDisplay.textContent = 'No file selected';
+
+        // File name display update
+        fileInput.addEventListener('change', function() {
+            const fileNameDisplay = document.getElementById('file-name-display');
+            if (fileNameDisplay) {
+                if (fileInput.files.length > 0) {
+                    fileNameDisplay.textContent = fileInput.files[0].name;
+                } else {
+                    fileNameDisplay.textContent = 'No file selected';
+                }
             }
-        }
-    });
+        });
+    }
+
+    initializeSectionToggles();
+    initializeSectionNavigation();
 }
 
 /**
@@ -222,37 +225,38 @@ function createSitePerformanceChart(siteData) {
  * Show welcome message
  */
 function showWelcomeMessage() {
-    const summaryContainer = document.getElementById('summary-metrics');
-    if (!summaryContainer) return;
-    
-    summaryContainer.innerHTML = `
-        <div class="welcome-message">
-            <h2>Welcome to the Unified Trader Visualization Dashboard</h2>
-            <p>Upload a CSV file to begin analyzing your conversion data.</p>
-            <p>This unified dashboard provides insights on:</p>
-            <ul>
-                <li>Conversion drivers</li>
-                <li>Time to convert metrics</li>
-                <li>Device path analysis</li>
-                <li>Media performance</li>
-                <li>Channel effectiveness</li>
-                <li>Creative performance</li>
-                <li>Geographic insights</li>
-                <li>Frequency analysis</li>
-                <li>Site performance</li>
-            </ul>
-            <p>Key features include:</p>
-            <ul>
-                <li>Multi-select filtering capabilities with apply button</li>
-                <li>Time to convert (Last impression time minus first impression time) in days</li>
-                <li>Time to convert by device path</li>
-                <li>Average time to convert by device, ad format, and channel</li>
-                <li>Filtering by Cross Device Attribution Model</li>
-                <li>Performance analysis by impression site</li>
-            </ul>
-            <p>All data is processed client-side only - no data is stored on any server.</p>
-        </div>
-    `;
+    const primarySummary = document.querySelector('#global-overview [data-summary="global"]');
+    if (primarySummary) {
+        primarySummary.innerHTML = `
+            <div class="welcome-message">
+                <h2>Welcome to the Unified Trader Visualization Dashboard</h2>
+                <p>Upload a CSV file to begin analyzing your conversion data.</p>
+                <p>This unified dashboard provides insights on:</p>
+                <ul>
+                    <li>Conversion drivers</li>
+                    <li>Time to convert metrics</li>
+                    <li>Device path analysis</li>
+                    <li>Media performance</li>
+                    <li>Channel effectiveness</li>
+                    <li>Creative performance</li>
+                    <li>Geographic insights</li>
+                    <li>Frequency analysis</li>
+                    <li>Site performance</li>
+                </ul>
+                <p>All data is processed client-side only — no data is stored on any server.</p>
+            </div>
+        `;
+    }
+
+    const otherSummaries = document.querySelectorAll('.dashboard-section:not(#global-overview) [data-summary="global"]');
+    otherSummaries.forEach(container => {
+        container.innerHTML = '<div class="summary-placeholder">Upload a CSV file to populate this section.</div>';
+    });
+
+    const filterChips = document.getElementById('global-filter-chips');
+    if (filterChips) {
+        filterChips.innerHTML = '<span class="filter-chip"><span class="filter-chip-label">Status:</span> Awaiting data upload</span>';
+    }
 }
 
 /**
@@ -332,4 +336,97 @@ function debounce(func, wait) {
         clearTimeout(timeout);
         timeout = setTimeout(() => func.apply(context, args), wait);
     };
+}
+
+/**
+ * Initialize collapsible section toggle controls
+ */
+function initializeSectionToggles() {
+    const toggles = document.querySelectorAll('.section-toggle');
+
+    toggles.forEach(toggle => {
+        const targetSelector = toggle.getAttribute('data-bs-target');
+        if (!targetSelector) return;
+
+        const target = document.querySelector(targetSelector);
+        if (!target) return;
+
+        const updateState = () => {
+            const isOpen = target.classList.contains('show');
+            const textElement = toggle.querySelector('.toggle-text');
+
+            if (textElement) {
+                textElement.textContent = isOpen ? 'Collapse' : 'Expand';
+            }
+
+            toggle.classList.toggle('collapsed', !isOpen);
+            toggle.setAttribute('aria-expanded', isOpen);
+        };
+
+        target.addEventListener('shown.bs.collapse', updateState);
+        target.addEventListener('hidden.bs.collapse', updateState);
+
+        updateState();
+    });
+}
+
+/**
+ * Initialize sticky navigation behavior for sections
+ */
+function initializeSectionNavigation() {
+    const navLinks = document.querySelectorAll('.section-nav-link');
+    if (!navLinks.length) return;
+
+    const scrollContainer = document.querySelector('.visualization-area');
+    const sections = Array.from(navLinks)
+        .map(link => {
+            const href = link.getAttribute('href');
+            if (!href || !href.startsWith('#')) return null;
+
+            const section = document.querySelector(href);
+            return section ? { link, section, href } : null;
+        })
+        .filter(Boolean);
+
+    if (!sections.length) return;
+
+    const activateLink = (href) => {
+        navLinks.forEach(link => {
+            link.classList.toggle('active', link.getAttribute('href') === href);
+        });
+    };
+
+    sections.forEach(({ link, href, section }) => {
+        link.addEventListener('click', (event) => {
+            event.preventDefault();
+
+            if (section && typeof section.scrollIntoView === 'function') {
+                section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+
+            activateLink(href);
+        });
+    });
+
+    if ('IntersectionObserver' in window) {
+        const observer = new IntersectionObserver((entries) => {
+            const visibleEntry = entries
+                .filter(entry => entry.isIntersecting)
+                .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+
+            if (visibleEntry) {
+                activateLink(`#${visibleEntry.target.id}`);
+            }
+        }, {
+            root: scrollContainer || null,
+            threshold: [0.25, 0.5, 0.75],
+            rootMargin: '-80px 0px -40% 0px'
+        });
+
+        sections.forEach(({ section }) => observer.observe(section));
+    } else {
+        activateLink(sections[0].href);
+    }
+
+    activateLink(sections[0].href);
 }
