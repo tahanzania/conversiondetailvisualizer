@@ -7,6 +7,7 @@ class ChartVisualizer {
   constructor(dataProcessor) {
     this.dataProcessor = dataProcessor;
     this.charts = {};
+    this.latestSummary = null;
     this.colorPalette = [
       '#4e79a7', '#f28e2c', '#e15759', '#76b7b2',
       '#59a14f', '#edc949', '#af7aa1', '#ff9da7',
@@ -84,43 +85,42 @@ class ChartVisualizer {
    * @param {Object} summaryData - Summary metrics data
    */
   createSummaryMetrics(summaryData) {
-    const summaryContainer = document.getElementById('summary-metrics');
-    if (!summaryContainer) return;
-    
-    summaryContainer.innerHTML = '';
-    
-    // Create metric cards
-    const totalConversionsCard = this.createMetricCard(
-      'Total Conversions', 
-      summaryData.totalConversions.toLocaleString(), 
-      'conversion-icon'
-    );
-    
-    const avgImpressionsCard = this.createMetricCard(
-      'Avg. Impressions per Conversion', 
-      summaryData.avgImpressions.toFixed(2), 
-      'impression-icon'
-    );
-    
-    const totalValueCard = this.createMetricCard(
-      'Total Value', 
-      summaryData.totalValue ? `$${summaryData.totalValue.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}` : '$0.00', 
-      'value-icon'
-    );
-    
-    const dateRangeCard = this.createMetricCard(
-      'Date Range', 
-      summaryData.dateRange.start && summaryData.dateRange.end ? 
-        `${summaryData.dateRange.start.toLocaleDateString()} - ${summaryData.dateRange.end.toLocaleDateString()}` : 
-        'N/A', 
-      'date-icon'
-    );
-    
-    // Append cards to container
-    summaryContainer.appendChild(totalConversionsCard);
-    summaryContainer.appendChild(avgImpressionsCard);
-    summaryContainer.appendChild(totalValueCard);
-    summaryContainer.appendChild(dateRangeCard);
+    this.latestSummary = summaryData;
+
+    const summaryContainers = document.querySelectorAll('[data-summary="global"]');
+    if (!summaryContainers.length) return;
+
+    const cards = [
+      {
+        title: 'Total Conversions',
+        value: summaryData.totalConversions.toLocaleString(),
+        icon: 'conversion-icon'
+      },
+      {
+        title: 'Avg. Impressions per Conversion',
+        value: summaryData.avgImpressions.toFixed(2),
+        icon: 'impression-icon'
+      },
+      {
+        title: 'Total Value',
+        value: summaryData.totalValue ? `$${summaryData.totalValue.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}` : '$0.00',
+        icon: 'value-icon'
+      },
+      {
+        title: 'Date Range',
+        value: summaryData.dateRange.start && summaryData.dateRange.end ?
+          `${summaryData.dateRange.start.toLocaleDateString()} - ${summaryData.dateRange.end.toLocaleDateString()}` :
+          'N/A',
+        icon: 'date-icon'
+      }
+    ];
+
+    summaryContainers.forEach(container => {
+      container.innerHTML = '';
+      cards.forEach(card => {
+        container.appendChild(this.createMetricCard(card.title, card.value, card.icon));
+      });
+    });
   }
 
   /**

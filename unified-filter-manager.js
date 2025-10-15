@@ -55,6 +55,10 @@ class UnifiedFilterManager {
     
     // Add event listeners
     this.addFilterEventListeners();
+
+    if (this.dataProcessor && this.dataProcessor.processedData && this.dataProcessor.processedData.summary) {
+      this.updateFilterSummaryDisplay(this.dataProcessor.processedData.summary);
+    }
   }
 
   /**
@@ -332,7 +336,9 @@ class UnifiedFilterManager {
     if (window.devicePathVisualizer) {
       window.devicePathVisualizer.updateVisualizations(filteredData);
     }
-    
+
+    this.updateFilterSummaryDisplay(filteredData.summary);
+
     // Highlight apply button to indicate filters have been applied
     if (this.filterElements.applyButton) {
       this.filterElements.applyButton.classList.add('filter-applied');
@@ -389,6 +395,8 @@ class UnifiedFilterManager {
     if (window.devicePathVisualizer) {
       window.devicePathVisualizer.updateVisualizations(this.dataProcessor.processedData);
     }
+
+    this.updateFilterSummaryDisplay(this.dataProcessor.processedData.summary);
   }
 
   /**
@@ -397,5 +405,91 @@ class UnifiedFilterManager {
    */
   getActiveFilters() {
     return this.activeFilters;
+  }
+
+  /**
+   * Update the global filter summary chips
+   * @param {Object} summary - Current summary metrics
+   */
+  updateFilterSummaryDisplay(summary) {
+    const chipsContainer = document.getElementById('global-filter-chips');
+    if (!chipsContainer) return;
+
+    chipsContainer.innerHTML = '';
+
+    const activeRange = this.activeFilters?.dateRange || {};
+    const hasRangeFilter = (activeRange.start && activeRange.start !== '') || (activeRange.end && activeRange.end !== '');
+
+    const formatDate = (value) => {
+      if (!value) return null;
+      const dateValue = value instanceof Date ? value : new Date(value);
+      if (Number.isNaN(dateValue.getTime())) return null;
+      return dateValue.toLocaleDateString();
+    };
+
+    const summaryRange = summary?.dateRange || {};
+    const startDate = hasRangeFilter ? formatDate(activeRange.start) : formatDate(summaryRange.start);
+    const endDate = hasRangeFilter ? formatDate(activeRange.end) : formatDate(summaryRange.end);
+
+    const formatSelection = (key, fallbackLabel) => {
+      const value = this.activeFilters?.[key];
+      if (!value || (Array.isArray(value) && value.length === 0)) {
+        return fallbackLabel;
+      }
+
+      const valuesArray = Array.isArray(value) ? value.filter(Boolean) : [value].filter(Boolean);
+
+      if (valuesArray.length === 0) {
+        return fallbackLabel;
+      }
+
+      if (valuesArray.length <= 2) {
+        return valuesArray.join(', ');
+      }
+
+      return `${valuesArray.length} selected`;
+    };
+
+    const dateRangeValue = (() => {
+      if (startDate && endDate) {
+        return `${startDate} – ${endDate}`;
+      }
+
+      if (startDate) {
+        return `From ${startDate}`;
+      }
+
+      if (endDate) {
+        return `Through ${endDate}`;
+      }
+
+      return 'All Dates';
+    })();
+
+    const filterItems = [
+      {
+        label: 'Date Range',
+        value: dateRangeValue
+      },
+      {
+        label: 'Campaign',
+        value: formatSelection('campaign', 'All Campaigns')
+      },
+      {
+        label: 'Ad Group',
+        value: formatSelection('adGroup', 'All Ad Groups')
+      },
+      {
+        label: 'Creative',
+        value: formatSelection('creative', 'All Creatives')
+      }
+    ];
+
+    filterItems.forEach(item => {
+      const chip = document.createElement('span');
+      chip.className = 'filter-chip';
+      chip.innerHTML = `<span class="filter-chip-label">${item.label}:</span> ${item.value}`;
+      chipsContainer.appendChild(chip);
+    });
   }
 }
