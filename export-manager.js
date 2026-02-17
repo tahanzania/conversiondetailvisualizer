@@ -4,6 +4,18 @@ class ExportManager {
   constructor(dataProcessor, chartVisualizer) {
     this.dataProcessor = dataProcessor;
     this.chartVisualizer = chartVisualizer;
+
+    // Define TTD Brand Colors
+    this.brandColors = {
+      primary: '0096D6', // TTD Blue
+      navy: '003B5C',    // TTD Navy
+      aqua: '5CC8D9',    // TTD Aqua
+      peach: 'F0503F',   // TTD Peach
+      yellow: 'F6B73D',  // TTD Mustard
+      green: '77C258',   // TTD Grass
+      gray: 'A7A9AC',    // TTD Grey
+      lightGray: 'F5F7FA'
+    };
   }
 
   /**
@@ -12,6 +24,18 @@ class ExportManager {
   initializeExport() {
     const exportContainer = document.getElementById('export-container');
     if (!exportContainer) return;
+
+    // Define TTD Brand Colors
+    this.brandColors = {
+      primary: '0096D6', // TTD Blue
+      navy: '003B5C',    // TTD Navy
+      aqua: '5CC8D9',    // TTD Aqua
+      peach: 'F0503F',   // TTD Peach
+      yellow: 'F6B73D',  // TTD Mustard
+      green: '77C258',   // TTD Grass
+      gray: 'A7A9AC',    // TTD Grey
+      lightGray: 'F5F7FA'
+    };
 
     exportContainer.innerHTML = '';
 
@@ -150,14 +174,7 @@ class ExportManager {
     }
   }
 
-  /**
-   * Export the dashboard as a PowerPoint presentation
-   */
 
-
-  /**
-   * Export the dashboard as a native PowerPoint presentation
-   */
   async exportDashboardPpt() {
     if (typeof PptxGenJS === 'undefined') {
       alert('PPT export requires PptxGenJS to be loaded.');
@@ -172,10 +189,24 @@ class ExportManager {
     try {
       const pptx = new PptxGenJS();
       pptx.layout = 'LAYOUT_16x9';
-      pptx.author = 'Trader Visualization Dashboard';
-      pptx.company = 'Unified Dashboard';
-      pptx.subject = 'Dashboard Export';
+      pptx.author = 'The Trade Desk';
+      pptx.company = 'The Trade Desk';
+      pptx.subject = 'Trader Visualization Dashboard Export';
       pptx.title = 'Trader Visualization Dashboard Report';
+
+      // Define Master Slide with TTD Branding
+      pptx.defineSlideMaster({
+        title: 'MASTER_SLIDE',
+        background: { color: this.brandColors.lightGray },
+        slideNumber: { x: 9.0, y: 5.3, w: 0.5, h: 0.3, fontSize: 10, color: this.brandColors.gray },
+        objects: [
+          // Footer Line
+          { rect: { x: 0, y: 5.45, w: '100%', h: 0.05, fill: this.brandColors.primary } },
+          { rect: { x: 0, y: 5.5, w: '100%', h: 0.125, fill: this.brandColors.navy } },
+          // Footer Text
+          { text: { text: 'The Trade Desk - Confidential', options: { x: 0.5, y: 5.3, w: 4, h: 0.3, fontSize: 10, color: this.brandColors.gray } } }
+        ]
+      });
 
       const data = this.dataProcessor.processedData;
 
@@ -185,6 +216,52 @@ class ExportManager {
       // 2. Summary Slide
       if (data.summary) {
         this.addSummarySlide(pptx, data.summary);
+      }
+
+      // 3. Time To Convert Analysis
+      const timeValues = data.timeToConvert;
+      if (timeValues) {
+        pptx.addSection({ title: 'Time to Convert' });
+
+        // Distribution
+        this.addBarChartSlide(
+          pptx,
+          'Time to Convert Distribution',
+          timeValues.distribution,
+          { title: 'Conversions by Days', color: this.brandColors.primary }
+        );
+
+        // By Device
+        const deviceData = {};
+        Object.entries(timeValues.byDevice).forEach(([k, v]) => deviceData[k] = v.avgTime);
+        this.addBarChartSlide(
+          pptx,
+          'Avg Time to Convert by Device',
+          deviceData,
+          { title: 'Days', color: this.brandColors.aqua }
+        );
+      }
+
+      // 4. Device Path Analysis
+      const devicePathData = data.devicePathAnalysis;
+      if (devicePathData) {
+        pptx.addSection({ title: 'Device Path Analysis' });
+
+        // Device Path Sankey (Screenshot)
+        await this.addImageSlide(
+          pptx,
+          'Device Path Flow',
+          'device-sankey-container',
+          'Visualizes the flow of users across devices from first impression to conversion.'
+        );
+
+        // Conversions by Path
+        this.addBarChartSlide(
+          pptx,
+          'Conversions by Device Path',
+          devicePathData.paths,
+          { title: 'Conversions', color: this.brandColors.navy, limit: 10 }
+        );
       }
 
       // 3. Conversion Analysis
@@ -287,6 +364,17 @@ class ExportManager {
         );
       }
 
+      // 7. Geographic Insights (New Section)
+      if (data.geoInsights) {
+        // Map (Screenshot)
+        await this.addImageSlide(
+          pptx,
+          'Geographic Distribution',
+          'geo-map',
+          'Map showing global distribution of conversions.'
+        );
+      }
+
       // 7. Site Performance (if available)
       if (data.sitePerformance && data.sitePerformance.lastImpressionSites) {
         this.addComboChartSlide(
@@ -318,38 +406,91 @@ class ExportManager {
   }
 
   /**
+   * Helper to add a slide with an image captured from a DOM element
+   */
+  async addImageSlide(pptx, slideTitle, elementId, description = '') {
+    const element = document.getElementById(elementId);
+    if (!element) return;
+
+    try {
+      const slide = pptx.addSlide({ masterName: 'MASTER_SLIDE' });
+      slide.addText(slideTitle, { x: 0.5, y: 0.5, w: '90%', fontSize: 24, bold: true, color: this.brandColors.navy });
+
+      if (description) {
+        slide.addText(description, { x: 0.5, y: 0.9, w: '90%', fontSize: 12, color: this.brandColors.gray });
+      }
+
+      // Temporarily ensure element is visible/sized correctly if needed
+      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#ffffff'
+      });
+
+      const imgData = canvas.toDataURL('image/png');
+
+      // Calculate aspect ratio to fit within 9x4 area
+      // pptx.getImageProperties doesn't exist in all versions, use canvas dimensions directly
+      const imgWidth = canvas.width;
+      const imgHeight = canvas.height;
+      const targetW = 9;
+      const targetH = 4;
+
+      let w = targetW;
+      let h = (imgHeight / imgWidth) * targetW;
+
+      if (h > targetH) {
+        h = targetH;
+        w = (imgWidth / imgHeight) * targetH;
+      }
+
+      slide.addImage({
+        data: imgData,
+        x: (10 - w) / 2, // center horizontally
+        y: 1.3,
+        w: w,
+        h: h
+      });
+
+    } catch (e) {
+      console.error(`Failed to capture image for ${slideTitle}:`, e);
+    }
+  }
+
+  /**
    * Add Title Slide
    */
   addTitleSlide(pptx) {
-    const slide = pptx.addSlide();
+    const slide = pptx.addSlide({ masterName: 'MASTER_SLIDE' });
 
-    // Background style
-    slide.background = { color: 'f5f7fa' };
+    // TTD Logo (Text representation for robust export)
+    slide.addText('The Trade Desk', {
+      x: 0.5, y: 0.5, w: '30%', fontSize: 24, bold: true, color: this.brandColors.primary, fontFace: 'Arial'
+    });
 
     slide.addText('Trader Visualization Dashboard Report', {
-      x: 0.5, y: 2.5, w: '90%', fontSize: 36, align: 'center', bold: true, color: '2c3e50'
+      x: 0.5, y: 2.2, w: '90%', fontSize: 40, align: 'center', bold: true, color: this.brandColors.navy
     });
 
     slide.addText(`Generated: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`, {
-      x: 0.5, y: 3.5, w: '90%', fontSize: 18, align: 'center', color: '7f8c8d'
+      x: 0.5, y: 3.5, w: '90%', fontSize: 18, align: 'center', color: this.brandColors.gray
     });
-
-    // Add a colored strip at bottom
-    slide.addShape(pptx.ShapeType.rect, { x: 0, y: 5.4, w: '100%', h: 0.2, fill: '4e79a7' });
   }
 
   /**
    * Add Summary Slide
    */
   addSummarySlide(pptx, summary) {
-    const slide = pptx.addSlide();
-    slide.addText('Global Overview', { x: 0.5, y: 0.5, w: '90%', fontSize: 24, bold: true, color: '2c3e50' });
+    const slide = pptx.addSlide({ masterName: 'MASTER_SLIDE' });
+    slide.addText('Global Overview', { x: 0.5, y: 0.5, w: '90%', fontSize: 24, bold: true, color: this.brandColors.navy });
 
     const metrics = [
-      { label: 'Total Conversions', value: summary.totalConversions.toLocaleString(), color: '4e79a7' },
-      { label: 'Avg Impressions/Conv', value: summary.avgImpressions.toFixed(2), color: 'f28e2c' },
-      { label: 'Total Value', value: summary.totalValue ? `$${summary.totalValue.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}` : '$0', color: '59a14f' },
-      { label: 'Data Rows', value: this.dataProcessor.rawData ? this.dataProcessor.rawData.length.toLocaleString() : '0', color: '76b7b2' }
+      { label: 'Total Conversions', value: summary.totalConversions.toLocaleString(), color: this.brandColors.primary },
+      { label: 'Avg Impressions/Conv', value: summary.avgImpressions.toFixed(2), color: this.brandColors.peach },
+      { label: 'Total Value', value: summary.totalValue ? `$${summary.totalValue.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}` : '$0', color: this.brandColors.green },
+      { label: 'Data Rows', value: this.dataProcessor.rawData ? this.dataProcessor.rawData.length.toLocaleString() : '0', color: this.brandColors.aqua }
     ];
 
     let xPos = 0.5;
@@ -375,13 +516,13 @@ class ExportManager {
       // Label
       slide.addText(metric.label, {
         x: xPos + 0.3, y: yPos + 0.3, w: cardWidth - 0.5, h: 0.3,
-        fontSize: 12, color: '7f8c8d'
+        fontSize: 12, color: this.brandColors.gray
       });
 
       // Value
       slide.addText(metric.value, {
         x: xPos + 0.3, y: yPos + 0.6, w: cardWidth - 0.5, h: 0.6,
-        fontSize: 24, bold: true, color: '2c3e50'
+        fontSize: 24, bold: true, color: this.brandColors.navy
       });
 
       xPos += cardWidth + gap;
@@ -390,7 +531,7 @@ class ExportManager {
     // Add date range text
     if (summary.dateRange && summary.dateRange.start && summary.dateRange.end) {
       slide.addText(`Date Range: ${summary.dateRange.start.toLocaleDateString()} - ${summary.dateRange.end.toLocaleDateString()}`, {
-        x: 0.5, y: 4.0, w: '90%', fontSize: 14, color: '7f8c8d', italic: true
+        x: 0.5, y: 4.0, w: '90%', fontSize: 14, color: this.brandColors.gray, italic: true
       });
     }
   }
@@ -418,10 +559,13 @@ class ExportManager {
    * Add Bar Chart Slide
    */
   addBarChartSlide(pptx, slideTitle, dataMap, options = {}) {
-    const slide = pptx.addSlide();
-    slide.addText(slideTitle, { x: 0.5, y: 0.5, w: '90%', fontSize: 24, bold: true, color: '2c3e50' });
+    const slide = pptx.addSlide({ masterName: 'MASTER_SLIDE' });
+    slide.addText(slideTitle, { x: 0.5, y: 0.5, w: '90%', fontSize: 24, bold: true, color: this.brandColors.navy });
 
     const formatted = this.formatSimpleChartData(dataMap, options.limit || 15);
+
+    // Ensure all labels are strings to avoid pptxgen errors
+    const stringLabels = formatted.labels.map(l => String(l));
 
     if (formatted.labels.length === 0) {
       slide.addText('No data available', { x: 0.5, y: 2, fontSize: 14, color: '999999' });
@@ -430,7 +574,7 @@ class ExportManager {
 
     const pptChartData = [{
       name: options.title || 'Data',
-      labels: formatted.labels,
+      labels: stringLabels,
       values: formatted.values
     }];
 
@@ -438,7 +582,7 @@ class ExportManager {
       x: 0.5, y: 1.2, w: 9, h: 4,
       barDir: 'col',
       barGapWidthPct: 30,
-      chartColors: [options.color || '4e79a7'],
+      chartColors: [options.color || this.brandColors.primary],
       valAxisLabelFormatCode: '#,##0',
       showValue: true
     });
@@ -448,8 +592,8 @@ class ExportManager {
    * Add Doughnut Chart Slide
    */
   addDoughnutChartSlide(pptx, slideTitle, dataMap, options = {}) {
-    const slide = pptx.addSlide();
-    slide.addText(slideTitle, { x: 0.5, y: 0.5, w: '90%', fontSize: 24, bold: true, color: '2c3e50' });
+    const slide = pptx.addSlide({ masterName: 'MASTER_SLIDE' });
+    slide.addText(slideTitle, { x: 0.5, y: 0.5, w: '90%', fontSize: 24, bold: true, color: this.brandColors.navy });
 
     const formatted = this.formatSimpleChartData(dataMap, 10); // Limit pie slices
 
@@ -466,7 +610,7 @@ class ExportManager {
 
     slide.addChart(pptx.ChartType.doughnut, pptChartData, {
       x: 2.5, y: 1.2, w: 5, h: 4,
-      chartColors: ['4e79a7', 'f28e2c', 'e15759', '76b7b2', '59a14f', 'edc949'],
+      chartColors: [this.brandColors.primary, this.brandColors.peach, this.brandColors.aqua, this.brandColors.green, this.brandColors.yellow, this.brandColors.navy],
       dataLabelFormatCode: '0%',
       showLabel: true,
       showPercent: true,
@@ -479,8 +623,8 @@ class ExportManager {
    * Add Line Chart Slide
    */
   addLineChartSlide(pptx, slideTitle, dataMap, options = {}) {
-    const slide = pptx.addSlide();
-    slide.addText(slideTitle, { x: 0.5, y: 0.5, w: '90%', fontSize: 24, bold: true, color: '2c3e50' });
+    const slide = pptx.addSlide({ masterName: 'MASTER_SLIDE' });
+    slide.addText(slideTitle, { x: 0.5, y: 0.5, w: '90%', fontSize: 24, bold: true, color: this.brandColors.navy });
 
     // Ensure chronological order
     const entries = Object.entries(dataMap || {}).sort((a, b) => new Date(a[0]) - new Date(b[0]));
@@ -492,7 +636,7 @@ class ExportManager {
 
     // Downsample if too many data points (PPT struggles with hundreds of points sometimes)
     // Simple approach: show all for now, assuming typical campaign length
-    const labels = entries.map(e => e[0]); // Dates
+    const labels = entries.map(e => String(e[0])); // Dates
     const values = entries.map(e => e[1]);
 
     const pptChartData = [{
@@ -503,7 +647,7 @@ class ExportManager {
 
     slide.addChart(pptx.ChartType.line, pptChartData, {
       x: 0.5, y: 1.2, w: 9, h: 4,
-      chartColors: ['4e79a7'],
+      chartColors: [this.brandColors.primary],
       lineSmooth: true,
       lineSize: 2,
       showLegend: false,
@@ -515,8 +659,8 @@ class ExportManager {
    * Add Combo Chart Slide (Bar + Line/Bar)
    */
   addComboChartSlide(pptx, slideTitle, dataObj, primaryKey, secondaryKey, options = {}) {
-    const slide = pptx.addSlide();
-    slide.addText(slideTitle, { x: 0.5, y: 0.5, w: '90%', fontSize: 24, bold: true, color: '2c3e50' });
+    const slide = pptx.addSlide({ masterName: 'MASTER_SLIDE' });
+    slide.addText(slideTitle, { x: 0.5, y: 0.5, w: '90%', fontSize: 24, bold: true, color: this.brandColors.navy });
 
     let entries = Object.entries(dataObj || {});
 
@@ -532,7 +676,7 @@ class ExportManager {
       return;
     }
 
-    const labels = entries.map(e => e[0]);
+    const labels = entries.map(e => String(e[0]));
     const primaryValues = entries.map(e => e[1][primaryKey] || 0);
     const secondaryValues = entries.map(e => e[1][secondaryKey] || 0);
 
@@ -555,7 +699,7 @@ class ExportManager {
     const chartOpts = {
       x: 0.5, y: 1.2, w: 9, h: 4,
       barDir: 'col',
-      chartColors: ['4e79a7', 'f28e2c'], // Blue bars, Orange line
+      chartColors: [this.brandColors.primary, this.brandColors.peach], // Blue bars, Orange line
       showLegend: true,
       legendPos: 'b'
     };
@@ -575,8 +719,8 @@ class ExportManager {
    * Add Data Table Slide
    */
   addTableSlide(pptx, tableData) {
-    const slide = pptx.addSlide();
-    slide.addText('Top Conversion Data', { x: 0.5, y: 0.5, w: '90%', fontSize: 24, bold: true, color: '2c3e50' });
+    const slide = pptx.addSlide({ masterName: 'MASTER_SLIDE' });
+    slide.addText('Top Conversion Data', { x: 0.5, y: 0.5, w: '90%', fontSize: 24, bold: true, color: this.brandColors.navy });
 
     if (!tableData || tableData.length === 0) return;
 
@@ -592,17 +736,17 @@ class ExportManager {
     const pptRows = [];
 
     // Add Header Row
-    pptRows.push(headers.map(h => ({ text: h, options: { bold: true, fill: 'f2f2f2', color: '2c3e50' } })));
+    pptRows.push(headers.map(h => ({ text: String(h), options: { bold: true, fill: this.brandColors.lightGray, color: this.brandColors.navy } })));
 
     // Add Data Rows
     rows.forEach(row => {
       pptRows.push([
-        (row.conversionTime ? new Date(row.conversionTime).toLocaleDateString() : '-'),
-        row.conversionType || '-',
-        row.campaign || '-',
-        row.adGroup || '-',
-        row.deviceType || '-',
-        (row.timeToConvert !== undefined ? row.timeToConvert + ' days' : '-')
+        { text: String(row.conversionTime ? new Date(row.conversionTime).toLocaleDateString() : '-') },
+        { text: String(row.conversionType || '-') },
+        { text: String(row.campaign || '-') },
+        { text: String(row.adGroup || '-') },
+        { text: String(row.deviceType || '-') },
+        { text: String(row.timeToConvert !== undefined ? row.timeToConvert + ' days' : '-') }
       ]);
     });
 
